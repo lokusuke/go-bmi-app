@@ -10,11 +10,11 @@ var (
 	ErrUnreadable = errors.New("入力の読み取りに失敗しました")
 )
 
-func HandleInputError(err error) string {
+func HandleInputError(err error) error {
 	switch {
 	case errors.Is(err, io.EOF):
-		return ErrEOF.Error()
+		return ErrEOF
 	default:
-		return ErrUnreadable.Error()
+		return ErrUnreadable
 	}
 }

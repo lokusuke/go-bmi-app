@@ -5,7 +5,6 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -27,7 +26,7 @@ func (p *Profile) JudgeByBMI() (float64, string) {
 	// BMI算出
 	bmi := p.weight / (height * height)
 
-	switch  {
+	switch {
 	case bmi < 18.5:
 		return bmi, "低体重（痩せ型）"
 	case bmi < 25.0:
@@ -54,26 +53,6 @@ func readLine(s *bufio.Scanner, message string) (string, error) {
 	return "", io.EOF
 }
 
-// スキャナーから値を読み取り、数値に変換する関数
-func readFloat(s *bufio.Scanner, message string) (float64, error) {
-	for {
-		input, err := readLine(s, message)
-		if err != nil {
-			return 0, err
-		}
-
-		inputFloat, err := strconv.ParseFloat(input, 64)
-
-		// 変換結果の値にNaNまたはInfinityでないかも含める
-		if err != nil || math.IsNaN(inputFloat) || math.IsInf(inputFloat, 0) {
-			fmt.Println("半角数字を入力してください")
-			continue
-		}
-		return inputFloat, nil
-	}
-}
-
-
 func main() {
 
 	// プロファイル構造体の初期化
@@ -85,9 +64,10 @@ func main() {
 	// ウィザード開始
 	fmt.Println("*** 健康診断ウィザード  ***")
 
+	// 名前
 	name, err := readLine(scanner, "あなたのお名前を教えてください")
 	if err != nil {
-		fmt.Println(apperrors.HandleInputError(err))
+		fmt.Println(apperrors.HandleInputError(err).Error())
 		return
 	}
 	if name == "" {
@@ -95,32 +75,40 @@ func main() {
 		return
 	}
 	profile.name = name
-	fmt.Printf(`%sさん、こんにちは。`, profile.name)
+	fmt.Printf("%sさん、こんにちは。\n", profile.name)
 
-	height, err := readFloat(scanner, "身長(cm)を入力してください。")
+	// 身長
+	heightStr, err := readLine(scanner, "身長(cm)を入力してください。")
 	if err != nil {
-		fmt.Println(apperrors.HandleInputError(err))
+		fmt.Println(apperrors.HandleInputError(err).Error())
 		return
 	}
-
+	height, err := strconv.ParseFloat(heightStr, 64)
+	if err != nil {
+		fmt.Println("半角数字を入力してください")
+		return
+	}
 	if height <= 0 {
 		fmt.Println("0より大きい数値を入力してください")
 		return
 	}
-
 	profile.height = height
 
-	weight, err := readFloat(scanner, "体重(kg)を入力してください。")
+	// 体重
+	weightStr, err := readLine(scanner, "体重(kg)を入力してください。")
 	if err != nil {
-		fmt.Println(apperrors.HandleInputError(err))
+		fmt.Println(apperrors.HandleInputError(err).Error())
 		return
 	}
-
+	weight, err := strconv.ParseFloat(weightStr, 64)
+	if err != nil {
+		fmt.Println("半角数字を入力してください")
+		return
+	}
 	if weight <= 0 {
 		fmt.Println("0より大きい数値を入力してください")
 		return
 	}
-
 	profile.weight = weight
 
 	// BMI算出・判定
