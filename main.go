@@ -5,6 +5,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -26,12 +27,14 @@ func (p *Profile) JudgeByBMI() (float64, string) {
 	// BMI算出
 	bmi := p.weight / (height * height)
 
-	if bmi < 18.5 {
+	switch  {
+	case bmi < 18.5:
 		return bmi, "低体重（痩せ型）"
-	} else if bmi < 25.0 {
+	case bmi < 25.0:
 		return bmi, "普通体重"
+	default:
+		return bmi, "肥満"
 	}
-	return bmi, "肥満"
 }
 
 // スキャナーから値を読み取る関数
@@ -60,7 +63,9 @@ func readFloat(s *bufio.Scanner, message string) (float64, error) {
 		}
 
 		inputFloat, err := strconv.ParseFloat(input, 64)
-		if err != nil {
+
+		// 変換結果の値にNaNまたはInfinityでないかも含める
+		if err != nil || math.IsNaN(inputFloat) || math.IsInf(inputFloat, 0) {
 			fmt.Println("半角数字を入力してください")
 			continue
 		}
@@ -126,4 +131,5 @@ func main() {
 	fmt.Printf("BMI数値: %.2f\n", bmi)
 	fmt.Printf("判定: %s\n ", judge)
 	fmt.Println("================================")
+
 }
